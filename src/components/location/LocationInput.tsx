@@ -99,7 +99,7 @@ const LocationInput = () => {
             }
           >
             {geoLocations.map((gl, index) => (
-              <option value={index}>
+              <option value={index} key={index + gl.name}>
                 {gl.lat}, {gl.lon} (
                 {formatLocation([gl.name, gl.state, gl.country])})
               </option>

@@ -52,7 +52,7 @@ const Weather = () => {
         <select
           value={metric}
           onChange={(e) => setMetric(e.target.value as MetricTypes)}
-          className="ml-4 mb-4"
+          className="ml-4"
         >
           <option value="fahrenheit">Fahrenheit</option>
           <option value="celsius">Celsius</option>
