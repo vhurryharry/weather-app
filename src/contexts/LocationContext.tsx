@@ -2,8 +2,9 @@ import React, { createContext, useContext, useState } from "react";
 
 export type LocationTypes = "zip" | "city" | "coordinates";
 export interface Location {
-  type: LocationTypes;
-  location: string;
+  type?: LocationTypes;
+  location?: string;
+  country?: string;
 }
 
 interface LocationContextType {

@@ -23,17 +23,11 @@ const LocationInput = () => {
         <select
           value={location?.type}
           onChange={(e) => changeLocationType(e.target.value as LocationTypes)}
-          className="ml-4 mb-2 text-white"
+          className="ml-4 mb-2"
         >
-          <option value="city" className="text-black">
-            City Name
-          </option>
-          <option value="zip" className="text-black">
-            ZIP Code
-          </option>
-          <option value="coordinates" className="text-black">
-            Coordinates (lat,lon)
-          </option>
+          <option value="city">City Name</option>
+          <option value="zip">ZIP Code</option>
+          <option value="coordinates">Coordinates (lat,lon)</option>
         </select>
       </label>
 

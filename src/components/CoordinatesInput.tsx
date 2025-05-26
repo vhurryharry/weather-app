@@ -3,8 +3,8 @@ import { useLocationContext } from "../contexts/LocationContext";
 
 const CoordinatesInput = () => {
   const { setLocation } = useLocationContext();
-  const [lat, setLat] = useState("");
-  const [lng, setLng] = useState("");
+  const [lat, setLat] = useState("0");
+  const [lng, setLng] = useState("0");
 
   useEffect(() => {
     setLocation({
