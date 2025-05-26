@@ -32,6 +32,6 @@
   @apply bg-gray-800 text-white border border-white font-semibold px-4 py-2 rounded shadow-md cursor-pointer;
 }
 
-.disabled {
+:disabled {
   @apply opacity-50 cursor-not-allowed pointer-events-none;
 }

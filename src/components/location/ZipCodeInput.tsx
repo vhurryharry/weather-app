@@ -1,23 +1,9 @@
 import Select from "react-select";
-import { useLocationContext } from "../contexts/LocationContext";
-import { countryOptions } from "../utils/locationUtils";
+import { useLocationContext } from "../../contexts/LocationContext";
+import { countryOptions } from "../../utils/locationUtils";
 
 const ZipCodeInput = () => {
   const { location, setLocation } = useLocationContext();
-
-  const setZipCode = (zipcode: string) => {
-    setLocation({
-      ...location,
-      location: zipcode,
-    });
-  };
-
-  const setCountry = (country?: string) => {
-    setLocation({
-      ...location,
-      country,
-    });
-  };
 
   return (
     <>
@@ -25,8 +11,15 @@ const ZipCodeInput = () => {
         Enter zip code:
         <input
           placeholder="e.g., 10001"
-          value={location?.location}
-          onChange={(e) => setZipCode(e.target.value)}
+          value={location.zipcode}
+          onChange={(e) =>
+            setLocation({
+              ...location,
+              zipcode: e.target.value,
+              lat: "",
+              lon: "",
+            })
+          }
           className="p-1 m-2 border-1 rounded-xs"
         />
       </label>
@@ -36,7 +29,14 @@ const ZipCodeInput = () => {
           options={countryOptions}
           placeholder="e.g., Canada"
           className="ml-2 f-1 min-w-xs"
-          onChange={(nv) => setCountry(nv?.value)}
+          onChange={(nv) =>
+            setLocation({
+              ...location,
+              country: nv?.value,
+              lat: "",
+              lon: "",
+            })
+          }
         />
       </label>
     </>

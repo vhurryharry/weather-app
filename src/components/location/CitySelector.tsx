@@ -1,23 +1,9 @@
 import Select from "react-select";
-import { useLocationContext } from "../contexts/LocationContext";
-import { countryOptions } from "../utils/locationUtils";
+import { useLocationContext } from "../../contexts/LocationContext";
+import { countryOptions } from "../../utils/locationUtils";
 
 const CitySelector = () => {
   const { location, setLocation } = useLocationContext();
-
-  const setCity = (city: string) => {
-    setLocation({
-      ...location,
-      location: city,
-    });
-  };
-
-  const setCountry = (country?: string) => {
-    setLocation({
-      ...location,
-      country,
-    });
-  };
 
   return (
     <>
@@ -25,8 +11,15 @@ const CitySelector = () => {
         City:
         <input
           placeholder="e.g., London"
-          value={location?.location}
-          onChange={(e) => setCity(e.target.value)}
+          value={location.city}
+          onChange={(e) =>
+            setLocation({
+              ...location,
+              city: e.target.value,
+              lat: "",
+              lon: "",
+            })
+          }
           className="p-1 m-2 border-1 rounded-xs"
         />
       </label>
@@ -36,7 +29,14 @@ const CitySelector = () => {
           options={countryOptions}
           placeholder="e.g., Canada"
           className="ml-2 f-1 min-w-xs"
-          onChange={(nv) => setCountry(nv?.value)}
+          onChange={(nv) =>
+            setLocation({
+              ...location,
+              country: nv?.value,
+              lat: "",
+              lon: "",
+            })
+          }
         />
       </label>
     </>

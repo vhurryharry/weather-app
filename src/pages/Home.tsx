@@ -1,5 +1,5 @@
-import LocationInput from "../components/LocationInput";
-import Weather from "../components/Weather";
+import LocationInput from "../components/location/LocationInput";
+import Weather from "../components/weather/Weather";
 
 const Home = () => {
   return (

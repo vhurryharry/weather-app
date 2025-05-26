@@ -1,62 +1,20 @@
-import { useState } from "react";
-import { useLocationContext } from "../contexts/LocationContext";
-import { getCurrentWeather } from "../utils/getCurrentWeather";
-import Loader from "./Loader";
-import { kelvinToCelsius, kelvinToFahrenheit } from "../utils/metricConvert";
+import { kelvinToCelsius, kelvinToFahrenheit } from "../../utils/metricConvert";
+import type { MetricTypes, WeatherData } from "../../utils/types";
 
-type WeatherData = {
-  name: string;
-  sys: { country: string; sunrise: number; sunset: number };
-  weather: { main: string; description: string; icon: string }[];
-  main: {
-    temp: number;
-    feels_like: number;
-    temp_min: number;
-    temp_max: number;
-    humidity: number;
-    pressure: number;
-  };
-  wind: { speed: number; deg: number };
-  clouds: { all: number };
-  visibility: number;
-};
+interface Props {
+  weather?: WeatherData;
+  metric: MetricTypes;
+}
 
-type MetricTypes = "fahrenheit" | "celsius";
-
-const Weather = () => {
-  const { location } = useLocationContext();
-  const [weather, setWeather] = useState<WeatherData>();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [metric, setMetric] = useState<MetricTypes>("celsius");
-
+const WeatherCard = ({ weather, metric }: Props) => {
   const convertTemperature = (k: number) =>
     metric === "celsius" ? kelvinToCelsius(k) : kelvinToFahrenheit(k);
-
-  const fetchWeather = () => {
-    if (location && location.type && location.location) {
-      setError(null);
-      setLoading(true);
-      getCurrentWeather(location)
-        .then((data) => {
-          setWeather(data);
-          console.log(data);
-        })
-        .catch((err) => {
-          setError(`Failed to fetch weather data. ${err.message}`);
-          console.error(err);
-        })
-        .finally(() => {
-          setLoading(false);
-        });
-    }
-  };
 
   const curWeather = weather?.weather[0];
   const iconUrl = `https://openweathermap.org/img/wn/${curWeather?.icon ?? "02d"}@2x.png`;
 
   return (
-    <div>
+    <>
       <div className="max-w-md py-6">
         <div className="flex items-center justify-between mb-4">
           <div>
@@ -126,27 +84,8 @@ const Weather = () => {
           </div>
         </div>
       </div>
-
-      <label className="my-4">
-        Metric Type:
-        <select
-          value={metric}
-          onChange={(e) => setMetric(e.target.value as MetricTypes)}
-          className="ml-4 mb-4"
-        >
-          <option value="fahrenheit">Fahrenheit</option>
-          <option value="celsius">Celsius</option>
-        </select>
-      </label>
-      <div className="flex flex-row items-center">
-        <button className="btn mr-4" onClick={fetchWeather}>
-          Get Current Weather
-        </button>
-        {loading && <Loader />}
-      </div>
-      {error && <p className="text-red-500 mt-4">{error}</p>}
-    </div>
+    </>
   );
 };
 
-export default Weather;
+export default WeatherCard;

@@ -3,13 +3,16 @@ import React, { createContext, useContext, useState } from "react";
 export type LocationTypes = "zip" | "city" | "coordinates";
 export interface Location {
   type?: LocationTypes;
-  location?: string;
+  city?: string;
+  zipcode?: string;
+  lat?: string;
+  lon?: string;
   country?: string;
 }
 
 interface LocationContextType {
-  location: Location | null;
-  setLocation: (location: Location | null) => void;
+  location: Location;
+  setLocation: (location: Location) => void;
 }
 
 const LocationContext = createContext<LocationContextType | undefined>(
@@ -21,7 +24,9 @@ export const LocationProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const [location, setLocation] = useState<Location | null>(null);
+  const [location, setLocation] = useState<Location>({
+    type: "coordinates",
+  });
 
   return (
     <LocationContext.Provider value={{ location, setLocation }}>
