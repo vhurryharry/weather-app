@@ -21,10 +21,10 @@ const LocationInput = () => {
 
   const changeLocationType = (newType: LocationTypes) => {
     setLocation({
+      ...location,
       type: newType,
-      lat: "",
-      lon: "",
     });
+    setGeoLocations([]);
   };
 
   const onValidate = () => {
@@ -53,6 +53,27 @@ const LocationInput = () => {
         setLoading(false);
       });
   };
+
+  const getCurrentLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(geoSuccess, geoError);
+    } else {
+      console.log("Geolocation not supported");
+    }
+  };
+
+  const geoSuccess = (position: GeolocationPosition) => {
+    if (position.coords.latitude && position.coords.longitude) {
+      setLocation({
+        type: "coordinates",
+        lat: position.coords.latitude.toString(),
+        lon: position.coords.longitude.toString(),
+        forceFetch: true,
+      });
+    }
+  };
+
+  const geoError = (error: GeolocationPositionError) => {};
 
   return (
     <div className="flex flex-col">
@@ -84,6 +105,9 @@ const LocationInput = () => {
           {loading && <Loader />}
         </div>
       )}
+      <button onClick={getCurrentLocation} className="btn mr-4">
+        Use current location
+      </button>
       {error && <p className="text-red-500">{error}</p>}
       {geoLocations.length > 0 && (
         <label>

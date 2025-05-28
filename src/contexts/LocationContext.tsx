@@ -8,6 +8,7 @@ export interface Location {
   lat?: string;
   lon?: string;
   country?: string;
+  forceFetch?: boolean;
 }
 
 interface LocationContextType {

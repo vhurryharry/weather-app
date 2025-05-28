@@ -17,7 +17,7 @@ export interface GeoLocation {
 export const formatLocation = (
   locationArr: Array<string | undefined>
 ): string => {
-  return locationArr.filter(Boolean).join(", ");
+  return locationArr.filter(Boolean).join(",");
 };
 
 export const geoDecode = async (

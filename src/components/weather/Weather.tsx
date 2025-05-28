@@ -1,21 +1,43 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocationContext } from "../../contexts/LocationContext";
 import { getCurrentWeather } from "../../utils/getCurrentWeather";
 import Loader from "../Loader";
 import type { MetricTypes, WeatherData } from "../../utils/types";
 import WeatherCard from "./WeatherCard";
+import { useHistoryContext } from "../../contexts/HistoryContext";
 
 const Weather = () => {
-  const { location } = useLocationContext();
+  const { location, setLocation } = useLocationContext();
+  const { setHistory, history } = useHistoryContext();
   const [weather, setWeather] = useState<WeatherData>();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [metric, setMetric] = useState<MetricTypes>("celsius");
 
+  useEffect(() => {
+    if (location && location.forceFetch) {
+      fetchWeather();
+
+      setLocation({ ...location, forceFetch: false });
+    }
+  }, [location]);
+
   const fetchWeather = () => {
     if (location && location.lat && location.lon) {
       setError(null);
       setLoading(true);
+      const newLocations = history?.location || [];
+      newLocations.push(location);
+      if (newLocations.length > 2) {
+        newLocations.shift();
+      }
+
+      setHistory({
+        location: newLocations,
+        timestamp: Date.now(),
+        weatherData: weather,
+      });
+
       getCurrentWeather(location)
         .then((data) => {
           setWeather(data);
@@ -31,6 +53,13 @@ const Weather = () => {
     }
   };
 
+  const onLastResult = () => {
+    if (history) {
+      setWeather(history.weatherData);
+      setLocation(history.location?.[0]);
+    }
+  };
+
   return (
     <div>
       <div className="flex flex-row items-center my-4">
@@ -42,6 +71,10 @@ const Weather = () => {
           Get Current Weather
         </button>
         {loading && <Loader />}
+
+        <button onClick={onLastResult} disabled={!history} className="btn">
+          View Last Result
+        </button>
       </div>
       {error && <p className="text-red-500 mt-4">{error}</p>}
 
