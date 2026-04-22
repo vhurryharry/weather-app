@@ -45,7 +45,7 @@ export const geoDecode = async (
   } else {
     const response = await axios.get<GeoLocation[]>(GEOCODE_URL, {
       params: {
-        q: formatLocation([location.city, location.country]),
+        q: formatLocation([location.city, location.state, location.country]),
         appid: API_KEY,
         limit,
       },
