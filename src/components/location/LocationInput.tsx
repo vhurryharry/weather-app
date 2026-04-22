@@ -12,6 +12,7 @@ import {
 } from "../../utils/geoCoder";
 import { useState } from "react";
 import Loader from "../Loader";
+import { validateLocation } from "../../utils/validation";
 
 const LocationInput = () => {
   const { location, setLocation } = useLocationContext();
@@ -27,7 +28,14 @@ const LocationInput = () => {
     setGeoLocations([]);
   };
 
+  const validationError = validateLocation(location);
+
   const onValidate = () => {
+    const err = validateLocation(location);
+    if (err) {
+      setError(err);
+      return;
+    }
     setError(null);
     setLoading(true);
     setGeoLocations([]);
@@ -99,7 +107,11 @@ const LocationInput = () => {
       )}
       {location.type !== "coordinates" && (
         <div className="flex flex-row items-center my-4">
-          <button className="btn mr-4" onClick={onValidate}>
+          <button
+            className="btn mr-4"
+            onClick={onValidate}
+            disabled={!!validationError}
+          >
             Validate Location
           </button>
           {loading && <Loader />}
