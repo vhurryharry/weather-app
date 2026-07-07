@@ -14,11 +14,26 @@ import { useState } from "react";
 import Loader from "../Loader";
 import { validateLocation } from "../../utils/validation";
 
+const geolocationErrorMessage = (err: GeolocationPositionError): string => {
+  switch (err.code) {
+    case err.PERMISSION_DENIED:
+      return "Location permission was denied. Enable location access in your browser settings to use this feature.";
+    case err.POSITION_UNAVAILABLE:
+      return "Your current position is unavailable right now. Try again in a moment.";
+    case err.TIMEOUT:
+      return "Getting your location timed out. Try again.";
+    default:
+      return err.message || "Failed to determine your current location.";
+  }
+};
+
 const LocationInput = () => {
   const { location, setLocation } = useLocationContext();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [geoLocations, setGeoLocations] = useState<GeoLocation[]>([]);
+  const [geolocating, setGeolocating] = useState(false);
+  const [geolocationError, setGeolocationError] = useState<string | null>(null);
 
   const changeLocationType = (newType: LocationTypes) => {
     setLocation({
@@ -63,25 +78,29 @@ const LocationInput = () => {
   };
 
   const getCurrentLocation = () => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(geoSuccess, geoError);
-    } else {
-      console.log("Geolocation not supported");
+    if (!navigator.geolocation) {
+      setGeolocationError("Geolocation is not supported by your browser.");
+      return;
     }
+    setGeolocationError(null);
+    setGeolocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setGeolocating(false);
+        setLocation({
+          type: "coordinates",
+          lat: position.coords.latitude.toString(),
+          lon: position.coords.longitude.toString(),
+          forceFetch: true,
+        });
+      },
+      (err) => {
+        setGeolocating(false);
+        setGeolocationError(geolocationErrorMessage(err));
+      },
+      { enableHighAccuracy: false, timeout: 10_000, maximumAge: 60_000 }
+    );
   };
-
-  const geoSuccess = (position: GeolocationPosition) => {
-    if (position.coords.latitude && position.coords.longitude) {
-      setLocation({
-        type: "coordinates",
-        lat: position.coords.latitude.toString(),
-        lon: position.coords.longitude.toString(),
-        forceFetch: true,
-      });
-    }
-  };
-
-  const geoError = (error: GeolocationPositionError) => {};
 
   return (
     <div className="flex flex-col">
@@ -117,9 +136,19 @@ const LocationInput = () => {
           {loading && <Loader />}
         </div>
       )}
-      <button onClick={getCurrentLocation} className="btn mr-4">
-        Use current location
-      </button>
+      <div className="flex flex-row items-center">
+        <button
+          onClick={getCurrentLocation}
+          className="btn mr-4"
+          disabled={geolocating}
+        >
+          {geolocating ? "Locating..." : "Use my location"}
+        </button>
+        {geolocating && <Loader />}
+      </div>
+      {geolocationError && (
+        <p className="text-red-500 mt-2">{geolocationError}</p>
+      )}
       {error && <p className="text-red-500">{error}</p>}
       {geoLocations.length > 0 && (
         <label>
