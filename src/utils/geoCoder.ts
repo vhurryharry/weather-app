@@ -1,10 +1,13 @@
 import axios from "axios";
 import type { Location } from "../contexts/LocationContext";
+import { memoizeAsync } from "./cache";
 
 const GEOCODE_URL = "https://api.openweathermap.org/geo/1.0/direct";
 const ZIP_URL = "https://api.openweathermap.org/geo/1.0/zip";
 
 const API_KEY = import.meta.env.VITE_API_KEY;
+
+const GEOCODE_TTL_MS = 24 * 60 * 60 * 1000;
 
 export interface GeoLocation {
   name: string;
@@ -20,7 +23,7 @@ export const formatLocation = (
   return locationArr.filter(Boolean).join(",");
 };
 
-export const geoDecode = async (
+const geoDecodeImpl = async (
   location: Location,
   limit: number = 5
 ): Promise<GeoLocation[]> => {
@@ -53,3 +56,12 @@ export const geoDecode = async (
     return response.data;
   }
 };
+
+export const geoDecode = memoizeAsync(
+  geoDecodeImpl,
+  (location, limit = 5) =>
+    `${location.type}|${location.city ?? ""}|${location.zipcode ?? ""}|${
+      location.country ?? ""
+    }|${limit}`,
+  GEOCODE_TTL_MS
+);

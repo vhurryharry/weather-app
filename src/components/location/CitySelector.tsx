@@ -1,10 +1,15 @@
 import Select from "react-select";
 import { useLocationContext } from "../../contexts/LocationContext";
 import { countryOptions, usStateOptions } from "../../utils/locationUtils";
+import { validateCity, validateCountry } from "../../utils/validation";
 
 const CitySelector = () => {
   const { location, setLocation } = useLocationContext();
   const isUS = location.country === "US";
+
+  const cityError = location.city !== undefined ? validateCity(location.city) : null;
+  const countryError =
+    location.country !== undefined ? validateCountry(location.country) : null;
 
   return (
     <>
@@ -22,8 +27,10 @@ const CitySelector = () => {
             })
           }
           className="p-1 m-2 border-1 rounded-xs"
+          aria-invalid={cityError ? true : undefined}
         />
       </label>
+      {cityError && <p className="text-red-500 text-sm ml-2">{cityError}</p>}
       <label className="flex flex-row items-center mt-2">
         Country:
         <Select
@@ -69,6 +76,9 @@ const CitySelector = () => {
             }
           />
         </label>
+      )}
+      {countryError && (
+        <p className="text-red-500 text-sm ml-2">{countryError}</p>
       )}
     </>
   );
