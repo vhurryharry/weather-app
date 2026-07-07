@@ -5,10 +5,11 @@ import Loader from "../Loader";
 import type { MetricTypes, WeatherData } from "../../utils/types";
 import WeatherCard from "./WeatherCard";
 import { useHistoryContext } from "../../contexts/HistoryContext";
+import SearchHistory from "./SearchHistory";
 
 const Weather = () => {
   const { location, setLocation } = useLocationContext();
-  const { setHistory, history } = useHistoryContext();
+  const { entries, addEntry } = useHistoryContext();
   const [weather, setWeather] = useState<WeatherData>();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -17,31 +18,24 @@ const Weather = () => {
   useEffect(() => {
     if (location && location.forceFetch) {
       fetchWeather();
-
       setLocation({ ...location, forceFetch: false });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location]);
 
   const fetchWeather = () => {
     if (location && location.lat && location.lon) {
       setError(null);
       setLoading(true);
-      const newLocations = history?.location || [];
-      newLocations.push(location);
-      if (newLocations.length > 2) {
-        newLocations.shift();
-      }
-
-      setHistory({
-        location: newLocations,
-        timestamp: Date.now(),
-        weatherData: weather,
-      });
 
       getCurrentWeather(location)
         .then((data) => {
           setWeather(data);
-          console.log(data);
+          addEntry({
+            location,
+            timestamp: Date.now(),
+            weatherData: data,
+          });
         })
         .catch((err) => {
           setError(`Failed to fetch weather data. ${err.message}`);
@@ -54,9 +48,10 @@ const Weather = () => {
   };
 
   const onLastResult = () => {
-    if (history) {
-      setWeather(history.weatherData);
-      setLocation(history.location?.[0]);
+    const latest = entries[0];
+    if (latest) {
+      setWeather(latest.weatherData);
+      setLocation(latest.location);
     }
   };
 
@@ -72,7 +67,11 @@ const Weather = () => {
         </button>
         {loading && <Loader />}
 
-        <button onClick={onLastResult} disabled={!history} className="btn">
+        <button
+          onClick={onLastResult}
+          disabled={entries.length === 0}
+          className="btn"
+        >
           View Last Result
         </button>
       </div>
@@ -91,6 +90,8 @@ const Weather = () => {
           <option value="celsius">Celsius</option>
         </select>
       </label>
+
+      <SearchHistory />
     </div>
   );
 };
