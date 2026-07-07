@@ -1,10 +1,11 @@
 import Select from "react-select";
 import { useLocationContext } from "../../contexts/LocationContext";
-import { countryOptions } from "../../utils/locationUtils";
+import { countryOptions, usStateOptions } from "../../utils/locationUtils";
 import { validateCity, validateCountry } from "../../utils/validation";
 
 const CitySelector = () => {
   const { location, setLocation } = useLocationContext();
+  const isUS = location.country === "US";
 
   const cityError = location.city !== undefined ? validateCity(location.city) : null;
   const countryError =
@@ -45,12 +46,37 @@ const CitySelector = () => {
             setLocation({
               ...location,
               country: nv?.value,
+              state: nv?.value === "US" ? location.state : undefined,
               lat: "",
               lon: "",
             })
           }
         />
       </label>
+      {isUS && (
+        <label className="flex flex-row items-center mt-2">
+          State:
+          <Select
+            options={usStateOptions}
+            placeholder="e.g., California"
+            className="ml-2 f-1 min-w-xs"
+            isClearable
+            value={
+              location.state
+                ? usStateOptions.find((o) => o.value === location.state) ?? null
+                : null
+            }
+            onChange={(nv) =>
+              setLocation({
+                ...location,
+                state: nv?.value,
+                lat: "",
+                lon: "",
+              })
+            }
+          />
+        </label>
+      )}
       {countryError && (
         <p className="text-red-500 text-sm ml-2">{countryError}</p>
       )}
